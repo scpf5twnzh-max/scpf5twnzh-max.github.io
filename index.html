@@ -2,8 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Mybettle</title>
+    <title>mybettle</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- PWA配置：引入manifest.json + 兼容iOS -->
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <meta name="apple-mobile-web-app-status-bar-style" content="#4299e1">
@@ -626,6 +627,20 @@
                 }
             }
         }).mount('#app')
+            // 判断浏览器是否支持 Service Worker
+    if ('serviceWorker' in navigator) {
+      // 在 load 事件触发后注册 Service Worker，确保 Service Worker 的注册不会影响首屏速度
+      window.addEventListener('load', function () {
+        // 注册 Service Worker
+        navigator.serviceWorker.register('/sw.js').then(function (registration) {
+          // 注册成功
+          console.log('ServiceWorker registration successful with scope: ', registration.scope)
+        }).catch(function (err) {
+          // 注册失败 :(
+          console.warn('ServiceWorker registration failed: ', err)
+        })
+      })
+    }
     </script>
 </body>
 </html>
