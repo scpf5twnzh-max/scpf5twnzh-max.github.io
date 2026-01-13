@@ -203,54 +203,70 @@
                         this.ghStatus = { connected: false, message: '请完善同步设置' };
                         return;
                     }
+                    // 注意：去掉了 Cache-Control，避免触发 CORS 限制
                     const url = `https://api.github.com/repos/${this.ghConfig.owner}/${this.ghConfig.repo}/contents/${this.ghConfig.path}`;
                     try {
                         const res = await fetch(url, {
-                            headers: { 'Authorization': `token ${this.ghConfig.token}`, 'Cache-Control': 'no-cache' }
+                            headers: { 
+                                'Authorization': `token ${this.ghConfig.token}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
                         });
-                        if (res.ok) {
+                
+                        if (res.status === 200) {
                             const json = await res.json();
                             this.fileSha = json.sha;
-                            // 解码 UTF-8 的 Base64
+                            // 解码内容
                             const content = decodeURIComponent(escape(atob(json.content)));
                             const cloudData = JSON.parse(content);
-                            if (cloudData && cloudData.length > 0) this.categories = cloudData;
-                            this.ghStatus = { connected: true, message: '云端同步中' };
+                            if (Array.isArray(cloudData)) {
+                                this.categories = cloudData;
+                            }
+                            this.ghStatus = { connected: true, message: '云端已连接' };
+                        } else if (res.status === 401) {
+                            this.ghStatus = { connected: false, message: 'Token 无效或过期' };
+                        } else if (res.status === 404) {
+                            this.ghStatus = { connected: false, message: '仓库或 data.json 未找到' };
                         } else {
-                            this.ghStatus = { connected: false, message: '文件不存在或Token无效' };
+                            this.ghStatus = { connected: false, message: '错误码: ' + res.status };
                         }
                     } catch (e) {
-                        this.ghStatus = { connected: false, message: '网络错误' };
+                        console.error(e);
+                        this.ghStatus = { connected: false, message: '网络请求被拦截' };
                     }
                 },
 
                 // 将数据保存回 GitHub
                 async saveToGitHub() {
-                    if (!this.ghStatus.connected) return;
-                    const url = `https://api.github.com/repos/${this.ghConfig.owner}/${this.ghConfig.repo}/contents/${this.ghConfig.path}`;
-                    
-                    // 编码 UTF-8 的 Base64
-                    const content = btoa(unescape(encodeURIComponent(JSON.stringify(this.categories, null, 2))));
-                    
-                    try {
-                        const res = await fetch(url, {
-                            method: 'PUT',
-                            headers: { 'Authorization': `token ${this.ghConfig.token}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                message: "Web Sync: Update Data",
-                                content: content,
-                                sha: this.fileSha
-                            })
-                        });
-                        if (res.ok) {
-                            const json = await res.json();
-                            this.fileSha = json.content.sha;
-                            console.log("云端保存成功");
-                        }
-                    } catch (e) {
-                        console.error("同步失败", e);
+                if (!this.ghStatus.connected) return;
+                const url = `https://api.github.com/repos/${this.ghConfig.owner}/${this.ghConfig.repo}/contents/${this.ghConfig.path}`;
+                
+                // 编码 UTF-8
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(this.categories, null, 2))));
+                
+                try {
+                    const res = await fetch(url, {
+                        method: 'PUT',
+                        headers: { 
+                            'Authorization': `token ${this.ghConfig.token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json' 
+                        },
+                        body: JSON.stringify({
+                            message: "Update from Web",
+                            content: content,
+                            sha: this.fileSha
+                        })
+                    });
+                    if (res.ok) {
+                        const json = await res.json();
+                        this.fileSha = json.content.sha;
+                        console.log("云端同步成功");
                     }
-                },
+                } catch (e) {
+                    console.error("保存失败", e);
+                }
+            },
 
                 // 业务逻辑部分
                 toggleCategory(index) {
@@ -319,3 +335,4 @@
     </script>
 </body>
 </html>
+
