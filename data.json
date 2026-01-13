@@ -5,7 +5,7 @@
     "father": "1",
     "mother": "1",
     "count": 1,
-    "namePrefix": "",
+    "namePrefix": "e",
     "data": [
       {
         "id": 1768308440561,
@@ -13,6 +13,20 @@
         "bloodline": "",
         "bodyLength": "",
         "fullParentWithBracket": "(1) × (1)"
+      },
+      {
+        "id": 1768308923030,
+        "bloodline": "",
+        "bodyLength": "",
+        "chestColor1": "",
+        "chestColor2": "",
+        "sheathColor1": "",
+        "sheathColor2": "",
+        "father": "1",
+        "mother": "1",
+        "fullParent": "1×1",
+        "fullParentWithBracket": "(1) × (1)",
+        "customName": "e1"
       }
     ]
   }
