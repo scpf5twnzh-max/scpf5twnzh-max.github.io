@@ -1,41 +1,126 @@
-const CACHE_NAME = "parent-child-cache-v1";
-const CACHE_RESOURCES = [
-  "index.html",
-  "https://unpkg.com/vue@3/dist/vue.global.js",
-  "icon-192x192.png",
-  "icon-512x512.png",
-  "manifest.json"
-];
+/**
+ * service worker 安装激活
+ */
 
-// 安装时缓存核心资源
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CACHE_RESOURCES))
-  );
-  self.skipWaiting(); // 立即激活新的Service Worker
-});
+let dataCacheName = 'new-data-v1'
+let cacheName = 'first-pwa-app-1'
+let filesToCache = [
+  '/',
+  '/index.html',
+  'style.css',
+  '/icon_192x192.png',
+  '/icon_512x512.png'
+]
 
-// 拦截请求，优先使用缓存
-self.addEventListener("fetch", (event) => {
-  // 只处理同源请求和Vue依赖，避免跨域问题
-  if (event.request.mode === "navigate" || 
-      (event.request.url.includes("vue.global.js") && event.request.mode === "no-cors")) {
-    event.respondWith(
-      caches.match(event.request)
-        .then((cachedResponse) => cachedResponse || fetch(event.request))
-    );
-  }
-});
-
-// 激活时删除旧缓存
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
+self.addEventListener('install', function (e) {
+  console.log('SW Install')
+  e.waitUntil(
+    caches.open(cacheName).then(function (cache) {
+      console.log('SW precaching')
+      return cache.addAll(filesToCache)
     })
-  );
-  self.clients.claim(); // 控制所有打开的页面
-});
+  )
+  self.skipWaiting()
+})
+
+self.addEventListener('activate', function (e) {
+  console.log('SW Activate')
+  e.waitUntil(
+    caches.keys().then(function (keyList) {
+      return Promise.all(keyList.map(function (key) {
+        if (key !== cacheName && key !== dataCacheName) {
+          console.log('SW Removing old cache', key)
+          return caches.delete(key)
+        }
+      }))
+    })
+  )
+  return self.clients.claim()
+})
+
+self.addEventListener('fetch', function (e) {
+  console.log('SW Fetch', e.request.url)
+  // 如果数据相关的请求，需要请求更新缓存
+  let dataUrl = '/mockData/'
+  if (e.request.url.indexOf(dataUrl) > -1) {
+    e.respondWith(
+      caches.open(dataCacheName).then(function (cache) {
+        return fetch(e.request).then(function (response){
+          cache.put(e.request.url, response.clone())
+          return response
+        }).catch(function () {
+          return caches.match(e.request)
+        })
+      })
+    )
+  } else {
+    e.respondWith(
+      caches.match(e.request).then(function (response) {
+        return response || fetch(e.request)
+      })
+    )
+  }
+})
+/**
+ * service worker 安装激活
+ */
+
+let dataCacheName = 'new-data-v1'
+let cacheName = 'first-pwa-app-1'
+let filesToCache = [
+  '/',
+  '/index.html',
+  'style.css',
+  '/icon_192x192.png',
+  '/icon_512x512.png'
+]
+
+self.addEventListener('install', function (e) {
+  console.log('SW Install')
+  e.waitUntil(
+    caches.open(cacheName).then(function (cache) {
+      console.log('SW precaching')
+      return cache.addAll(filesToCache)
+    })
+  )
+  self.skipWaiting()
+})
+
+self.addEventListener('activate', function (e) {
+  console.log('SW Activate')
+  e.waitUntil(
+    caches.keys().then(function (keyList) {
+      return Promise.all(keyList.map(function (key) {
+        if (key !== cacheName && key !== dataCacheName) {
+          console.log('SW Removing old cache', key)
+          return caches.delete(key)
+        }
+      }))
+    })
+  )
+  return self.clients.claim()
+})
+
+self.addEventListener('fetch', function (e) {
+  console.log('SW Fetch', e.request.url)
+  // 如果数据相关的请求，需要请求更新缓存
+  let dataUrl = '/mockData/'
+  if (e.request.url.indexOf(dataUrl) > -1) {
+    e.respondWith(
+      caches.open(dataCacheName).then(function (cache) {
+        return fetch(e.request).then(function (response){
+          cache.put(e.request.url, response.clone())
+          return response
+        }).catch(function () {
+          return caches.match(e.request)
+        })
+      })
+    )
+  } else {
+    e.respondWith(
+      caches.match(e.request).then(function (response) {
+        return response || fetch(e.request)
+      })
+    )
+  }
+})
