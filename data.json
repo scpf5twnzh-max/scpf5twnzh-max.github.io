@@ -173,12 +173,25 @@
   {
     "name": "CBF2",
     "isOpen": true,
-    "fatherId": "",
-    "motherId": "",
+    "fatherId": 1768308923030,
+    "motherId": 1768308977743,
     "formatType": "nested",
     "count": 1,
     "namePrefix": "",
-    "data": []
+    "data": [
+      {
+        "id": 1768309018544,
+        "bloodline": "",
+        "bodyLength": "",
+        "chestColor1": "",
+        "chestColor2": "",
+        "sheathColor1": "",
+        "sheathColor2": "",
+        "fullParent": "e1×e2",
+        "fullParentWithBracket": "((1) × (1)) × ((1) × (1))",
+        "customName": "亲子本1"
+      }
+    ]
   },
   {
     "name": "CBF3",
