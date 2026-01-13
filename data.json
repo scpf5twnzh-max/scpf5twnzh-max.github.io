@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "name": "CBF1",
+    "isOpen": true,
+    "father": "1",
+    "mother": "1",
+    "count": 1,
+    "namePrefix": "",
+    "data": [
+      {
+        "id": 1768308440561,
+        "customName": "亲子本1",
+        "bloodline": "",
+        "bodyLength": "",
+        "fullParentWithBracket": "(1) × (1)"
+      }
+    ]
+  }
+]
