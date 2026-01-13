@@ -44,13 +44,6 @@
         .search-input { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
         .search-count { color: #4299e1; font-size: 14px; }
         .reset-btn { background: #f56565; padding: 8px 16px; }
-                <!-- 如果分类被清空了，显示这个初始化按钮 -->
-        <div v-if="categories.length === 0" style="text-align:center; padding:50px;">
-            <p style="color:#718096; margin-bottom:20px;">数据为空或正在加载...</p>
-            <button @click="categories = [{ name: 'CBF1', isOpen: true, father: '', mother: '', count: 1, data: [] }]">
-                初始化 CBF1 列表
-            </button>
-        </div>
         .category-item { margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
         .category-header { background: #f8f9fa; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
         .category-content { padding: 15px; display: none; }
@@ -210,10 +203,12 @@
                         this.ghStatus = { connected: false, message: '请完善同步设置' };
                         return;
                     }
-                    // 注意：去掉了 Cache-Control，避免触发 CORS 限制
-                    const url = `https://api.github.com/repos/${this.ghConfig.owner}/${this.ghConfig.repo}/contents/${this.ghConfig.path}`;
+                    
+                    const url = `https://api.github.com/repos/${this.ghConfig.owner}/${this.ghConfig.repo}/contents/${this.ghConfig.path}?t=${Date.now()}`;
+                    
                     try {
                         const res = await fetch(url, {
+                            method: 'GET',
                             headers: { 
                                 'Authorization': `token ${this.ghConfig.token}`,
                                 'Accept': 'application/vnd.github.v3+json'
@@ -223,23 +218,28 @@
                         if (res.status === 200) {
                             const json = await res.json();
                             this.fileSha = json.sha;
-                            // 解码内容
+                            
                             const content = decodeURIComponent(escape(atob(json.content)));
                             const cloudData = JSON.parse(content);
-                            if (Array.isArray(cloudData)) {
+                            
+                            // --- 核心修正点开始 ---
+                            // 只有当云端数据确实有内容时，才覆盖本地
+                            if (Array.isArray(cloudData) && cloudData.length > 0) {
                                 this.categories = cloudData;
+                            } else {
+                                // 如果云端是空的，确保页面至少有一个 CBF1
+                                this.categories = [
+                                    { name: 'CBF1', isOpen: true, father: '', mother: '', count: 1, namePrefix: '', data: [] }
+                                ];
                             }
+                            // --- 核心修正点结束 ---
+                            
                             this.ghStatus = { connected: true, message: '云端已连接' };
-                        } else if (res.status === 401) {
-                            this.ghStatus = { connected: false, message: 'Token 无效或过期' };
-                        } else if (res.status === 404) {
-                            this.ghStatus = { connected: false, message: '仓库或 data.json 未找到' };
                         } else {
-                            this.ghStatus = { connected: false, message: '错误码: ' + res.status };
+                            this.handleError(res.status);
                         }
                     } catch (e) {
-                        console.error(e);
-                        this.ghStatus = { connected: false, message: '网络请求被拦截' };
+                        this.ghStatus = { connected: false, message: '网络无法连接 API' };
                     }
                 },
 
@@ -342,5 +342,6 @@
     </script>
 </body>
 </html>
+
 
 
