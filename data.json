@@ -175,7 +175,7 @@
     "isOpen": true,
     "fatherId": 1768308923030,
     "motherId": 1768308977743,
-    "formatType": "nested",
+    "formatType": "original",
     "count": 1,
     "namePrefix": "",
     "data": [
@@ -190,6 +190,18 @@
         "fullParent": "e1×e2",
         "fullParentWithBracket": "((1) × (1)) × ((1) × (1))",
         "customName": "亲子本1"
+      },
+      {
+        "id": 1768363397669,
+        "bloodline": "",
+        "bodyLength": "",
+        "chestColor1": "",
+        "chestColor2": "",
+        "sheathColor1": "",
+        "sheathColor2": "",
+        "fullParent": "e1×e2",
+        "fullParentWithBracket": "(1) × (1)",
+        "customName": "亲子本2"
       }
     ]
   },
