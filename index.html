@@ -2,15 +2,15 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
     <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.prod.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f7fafc; color: #2d3748; min-height: 100vh; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
+        body { background-color: #f7fafc; color: #2d3748; min-height: 100vh; padding: 5px; }
+        .container { max-width: 1200px; margin: 0 auto; width: 100%; }
 
         /* 同步面板 */
-        .sync-panel { background: #2d3748; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .sync-panel { background: #2d3748; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .sync-panel input { background: #4a5568; border: 1px solid #718096; color: white; padding: 5px 8px; border-radius: 4px; font-size: 12px; flex:1; min-width:120px; }
         .sync-status { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; white-space:nowrap; }
         .status-on { background: #48bb78; color: white; }
@@ -20,313 +20,339 @@
         .bloodline-section { background: white; border-radius: 8px; border: 1px solid #e2e8f0; padding: 12px; margin-bottom:15px; }
         .bloodline-add-bar { display: flex; align-items: center; gap: 8px; flex-wrap:wrap; margin-bottom:12px; }
         .add-label { font-weight:bold; white-space:nowrap; }
+        .gender-select { padding:8px; border:1px solid #cbd5e0; border-radius:6px; min-width:80px; }
         .add-input { flex: 1; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; min-width:180px; }
         .add-btn { padding:8px 14px; border:none; border-radius:4px; background:#805ad5; color:white; font-weight:600; cursor:pointer; }
         .add-btn:hover { background:#6b46c1; }
-        .bloodline-list { max-height:200px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:6px; padding:8px; }
+        /* 公母分栏 */
+        .gender-columns { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+        .gender-column { border:1px solid #e2e8f0; border-radius:6px; padding:8px; }
+        .gender-column-header { font-weight:600; padding:8px; background:#edf2f7; border-radius:4px; margin-bottom:8px; }
+        .gender-column-header.male { background:#e6f7ff; color:#1890ff; }
+        .gender-column-header.female { background:#fff2e8; color:#fa8c16; }
+        .bloodline-list { max-height:200px; overflow-y:auto; }
         .bloodline-item { padding:8px 10px; border-bottom:1px solid #f7fafc; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
         .bloodline-item:hover { background:#edf2f7; }
         .bloodline-item:last-child { border-bottom:none; }
         .bloodline-item-name { font-weight:500; }
         .bloodline-item-desc { font-size:12px; color:#718096; margin-top:2px; }
-        .edit-bloodline-btn { padding:5px 8px; background:#4299e1; color:white; border-radius:4px; font-size:12px; cursor:pointer; }
+        .edit-bloodline-btn { padding:5px 8px; background:#4299e1; color:white; border-radius:4px; font-size:12px; cursor:pointer; border:none; }
 
         /* CBF分类 */
         .category-item { margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 8px; background: white; overflow: hidden; }
         .category-header { background: #edf2f7; padding: 10px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
         .category-content { padding: 15px; display: none; }
         .category-content.active { display: block; }
+        /* 新增CBF按钮样式 */
+        .add-cbf-btn { margin:10px 0; padding:8px 16px; border:none; border-radius:6px; background:#2f855a; color:white; font-weight:600; cursor:pointer; width:100%; }
+        .add-cbf-btn:hover { background:#276749; }
 
-        /* CBF操作栏 */
+        /* CBF双选操作栏 */
         .cbf-op-bar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; align-items:center; }
-        .cbf-op-select { padding:7px; border:1px solid #cbd5e0; border-radius:4px; flex:1; min-width:150px; }
+        .cbf-op-subbar { display:flex; flex:1; gap:8px; min-width:280px; }
+        .cbf-op-select { padding:7px; border:1px solid #cbd5e0; border-radius:4px; flex:1; }
+        .cbf-op-name-input { padding:7px; border:1px solid #cbd5e0; border-radius:4px; flex:1; min-width:120px; }
+        .cbf-op-count-input { padding:7px; border:1px solid #cbd5e0; border-radius:4px; width:80px; }
         .cbf-op-btn { padding:7px 12px; border:none; border-radius:4px; background:#4299e1; color:white; cursor:pointer; }
         .cbf-op-btn:hover { background:#3182ce; }
 
-        /* 亲子本列表 */
+        /* 亲子本+次级种列表 */
         .parent-btn-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+        .subspecies-header { font-weight:600; margin-top:16px; margin-bottom:8px; color:#fa8c16; }
+        .subspecies-gender-columns { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px; }
+        .subspecies-gender-column { border:1px solid #ffe0b2; border-radius:6px; padding:8px; }
+        .subspecies-gender-column-header { font-weight:600; padding:8px; background:#fff8e1; border-radius:4px; margin-bottom:8px; }
+        .subspecies-gender-column-header.male { color:#1890ff; }
+        .subspecies-gender-column-header.female { color:#fa8c16; }
         .parent-btn { background: #f0f8fb; border: 1px solid #4299e1; border-radius: 8px; padding: 10px; cursor: pointer; min-width: 180px; flex: 1; max-width: 300px; }
-        .parent-btn:hover { background: #e6f6ff; }
+        .subspecies-btn { background: #fff2e8; border: 1px solid #fa8c16; border-radius: 8px; padding: 10px; cursor: pointer; min-width: 180px; flex: 1; max-width: 300px; }
+        .parent-btn:hover, .subspecies-btn:hover { background: #e6f6ff; }
         .parent-btn-title { font-size: 13px; color: #4a5568; }
-        .parent-btn-content { font-weight: bold; margin-top: 4px; word-break: break-all; }
+        .parent-btn-parents { font-size:12px; color:#718096; margin-top:4px; }
         .parent-btn-extra { font-size:11px; color:#a0aec0; margin-top:4px; display:flex; justify-content:space-between; }
-        .care-tag { background:#f6ad55; color:white; padding:1px 6px; border-radius:3px; font-size:10px; }
-        .care-tags-wrap { display:flex; gap:4px; flex-wrap:wrap; }
 
-        /* 弹窗样式 */
-        .modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .detail-modal-mask { z-index: 1000; }
-        .parent-select-modal-mask { z-index: 2000; }
-        .care-modal-mask { z-index: 2000; }
-        .edit-bloodline-modal-mask { z-index: 2000; }
-        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+        /* 弹窗样式（带动画） */
+        .modal-mask { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; 
+            z-index: 9999; 
+            opacity: 0; /* 初始透明 */
+            visibility: hidden; /* 初始隐藏 */
+            transition: opacity 0.3s ease, visibility 0.3s ease; /* 过渡动画 */
+        }
+        /* 弹窗显示状态 */
+        .modal-mask.active { 
+            opacity: 1; 
+            visibility: visible; 
+        }
+        .modal-content { 
+            background: white; padding: 20px; border-radius: 12px; 
+            width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;
+            position: relative;
+            transform: translateY(20px) scale(0.95); /* 初始偏移+缩放 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* 过渡动画 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        /* 弹窗内容显示状态 */
+        .modal-mask.active .modal-content { 
+            transform: translateY(0) scale(1); /* 恢复原位+原大小 */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px; align-items:center; }
-        .modal-close { background:none; color:#718096; font-size:20px; padding:0; cursor:pointer; border:none; }
+        .modal-close { background:none; color:#718096; font-size:20px; padding:0; cursor:pointer; border:none; transition: color 0.2s ease; }
+        .modal-close:hover { color:#f56565; }
         .form-group { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap:wrap; }
         .form-group label { width: 80px; font-size: 13px; font-weight: 600; white-space:nowrap; }
-        input, select { padding: 7px; border: 1px solid #cbd5e0; border-radius: 4px; flex: 1; min-width:160px; }
+        input, select { padding: 7px; border: 1px solid #cbd5e0; border-radius: 4px; flex: 1; min-width:160px; transition: border-color 0.2s ease; }
+        input:focus, select:focus { outline: none; border-color: #4299e1; }
         button { padding: 7px 14px; border: none; border-radius: 4px; cursor: pointer; background: #4299e1; color: white; font-weight: 600; transition: 0.2s; font-size:13px; }
-        button:hover { background: #3182ce; }
+        button:hover { background: #3182ce; transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
         .delete-btn { background:#f56565; }
+        .delete-btn:hover { background:#e53e3e; }
         .color-group { display: flex; gap: 8px; flex: 1; flex-wrap:wrap; }
-        .care-group { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-        .care-code-wrap { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
-        .care-code-item { padding:5px 8px; background:#edf2f7; border-radius:4px; display:flex; align-items:center; gap:4px; }
-        .care-code-remove { color:#f56565; cursor:pointer; }
-
-        /* 选择窗口列表 */
-        .select-list { max-height:250px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:6px; margin:10px 0; }
-        .select-item { padding:10px 12px; border-bottom:1px solid #f7fafc; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
-        .select-item:hover { background:#edf2f7; }
-        .select-item:last-child { border-bottom:none; }
-        .select-item-info { flex:1; }
-        .select-item-name { font-weight:500; }
-        .select-item-desc { font-size:12px; color:#718096; margin-top:2px; }
-
-        /* 按钮样式 */
-        .select-btn { background:#38b2ac !important; }
-        .select-btn:hover { background:#319795 !important; }
-        .care-btn { background:#f6ad55 !important; margin-left:8px; }
-        .care-btn:hover { background:#ed8936 !important; }
-        .add-care-code-btn { background:#48bb78 !important; padding:5px 8px; font-size:12px; }
+        .subspecies-code-wrap { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+        .subspecies-code-item { padding:5px 8px; background:#edf2f7; border-radius:4px; display:flex; align-items:center; gap:4px; transition: background-color 0.2s ease; }
+        .subspecies-code-item:hover { background:#dee2e6; }
+        .subspecies-code-remove { color:#f56565; cursor:pointer; transition: color 0.2s ease; }
+        .subspecies-code-remove:hover { color:#e53e3e; }
+        .add-subspecies-btn { background:#fa8c16 !important; margin-bottom:10px; }
+        .add-subspecies-btn:hover { background:#dd6b20 !important; }
     </style>
 </head>
 <body>
     <div id="app" class="container">
         <!-- GitHub同步面板 -->
         <div class="sync-panel">
-            <span>☁️ GitHub 同步：</span>
+            <span>☁️ 同步：</span>
             <input v-model="gh.token" type="password" placeholder="Token">
             <input v-model="gh.owner" placeholder="用户名">
             <input v-model="gh.repo" placeholder="仓库名">
-            <button @click="saveConfig" style="background:#48bb78">连接并拉取数据</button>
+            <button @click="saveConfig" style="background:#48bb78">连接拉取</button>
             <span :class="['sync-status', ghStatus.connected ? 'status-on' : 'status-off']">
                 {{ ghStatus.message }}
             </span>
         </div>
 
-        <!-- 血脉源头区域（原血线添加） -->
+        <!-- 血脉源头区域 -->
         <div class="bloodline-section">
             <div class="bloodline-add-bar">
                 <span class="add-label">🧬 血脉源头：</span>
-                <input v-model="newBloodlineName" class="add-input" placeholder="输入血脉名称（如：亮胸、琉璃）">
+                <select class="gender-select" v-model="newBloodlineGender">
+                    <option value="male">公</option>
+                    <option value="female">母</option>
+                </select>
+                <input v-model="newBloodlineName" class="add-input" placeholder="亮胸、琉璃等">
                 <button class="add-btn" @click="openAddBloodlineModal">添加</button>
             </div>
-            <div v-if="bloodlineLib.length > 0">
-                <div style="font-size:13px; font-weight:600; margin-bottom:8px">已有源头：</div>
-                <div class="bloodline-list">
-                    <div class="bloodline-item" v-for="bl in bloodlineLib" :key="bl.id">
-                        <div>
-                            <div class="bloodline-item-name">{{bl.bloodline}}</div>
-                            <div class="bloodline-item-desc">体长: {{bl.bodyLength || '未知'}}mm | 胸部: {{bl.chestColor1 || '无'}}</div>
+            
+            <div class="gender-columns">
+                <div class="gender-column">
+                    <div class="gender-column-header male">公血脉</div>
+                    <div class="bloodline-list">
+                        <div class="bloodline-item" v-for="bl in maleBloodlines" :key="bl.id">
+                            <div>
+                                <div class="bloodline-item-name">{{ bl.bloodline }}</div>
+                                <div class="bloodline-item-desc">体长: {{ bl.bodyLength || '未知' }}mm | 胸色: {{ bl.chestColor1 || '无' }}</div>
+                            </div>
+                            <button class="edit-bloodline-btn" @click="openEditBloodlineModal(bl)">改</button>
                         </div>
-                        <span class="edit-bloodline-btn" @click="openEditBloodlineModal(bl)">修改</span>
+                        <div v-if="maleBloodlines.length === 0" style="padding:20px; text-align:center; color:#718096">暂无公血脉</div>
+                    </div>
+                </div>
+                <div class="gender-column">
+                    <div class="gender-column-header female">母血脉</div>
+                    <div class="bloodline-list">
+                        <div class="bloodline-item" v-for="bl in femaleBloodlines" :key="bl.id">
+                            <div>
+                                <div class="bloodline-item-name">{{ bl.bloodline }}</div>
+                                <div class="bloodline-item-desc">体长: {{ bl.bodyLength || '未知' }}mm | 胸色: {{ bl.chestColor1 || '无' }}</div>
+                            </div>
+                            <button class="edit-bloodline-btn" @click="openEditBloodlineModal(bl)">改</button>
+                        </div>
+                        <div v-if="femaleBloodlines.length === 0" style="padding:20px; text-align:center; color:#718096">暂无母血脉</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- CBF分类循环 -->
-        <div v-for="(category, index) in categories" :key="index" class="category-item">
-            <div class="category-header" @click="toggleCategory(index)">
-                <span>CBF{{index + 1}} 
-                    <span style="font-size:12px;color:#4299e1">(共 {{category.data.length}} 条)</span>
-                </span>
-                <span>{{category.isOpen ? '▼' : '▶'}}</span>
-            </div>
+        <!-- 新增CBF按钮 -->
+        <button class="add-cbf-btn" @click="addNewCBFCategory">+ 新增CBF分类</button>
 
+        <!-- CBF分类循环 -->
+        <div v-for="(category, index) in categories" :key="category.id" class="category-item">
+            <div class="category-header" @click="toggleCategory(index)">
+                <span>CBF{{ index + 1 }} (共 {{ category.data.length + category.subspeciesList.length }} 条)</span>
+                <span>{{ category.isOpen ? '▼' : '▶' }}</span>
+            </div>
             <div class="category-content" :class="{active: category.isOpen}">
-                <!-- CBF操作栏（名称调整） -->
                 <div class="cbf-op-bar">
-                    <select v-model="category.selectedBloodlineId" class="cbf-op-select">
-                        <option value="">
-                            {{index === 0 ? '选择' : '添加次级血脉'}}
-                        </option>
-                        <option v-for="bl in (index === 0 ? bloodlineLib : categories[index-1].data)" :key="bl.id" :value="bl.id">
-                            {{bl.bloodline}}
-                        </option>
-                    </select>
-                    <input v-model.number="category.addCount" type="number" min="1" value="1" class="cbf-op-select" style="flex:0.5" placeholder="数量">
-                    <button class="cbf-op-btn" @click="addBloodlineToCBF(index)" :disabled="!category.selectedBloodlineId">添加</button>
+                    <div class="cbf-op-subbar">
+                        <select v-model="category.selectedMaleId" class="cbf-op-select" :disabled="getMaleOptionList(index).length === 0">
+                            <option value="">选公本</option>
+                            <option v-for="bl in getMaleOptionList(index)" :key="bl.id" :value="bl.id">
+                                {{ bl.bloodline }} {{ index > 0 ? `(${bl.code})` : '' }}
+                            </option>
+                        </select>
+                        <select v-model="category.selectedFemaleId" class="cbf-op-select" :disabled="getFemaleOptionList(index).length === 0">
+                            <option value="">选母本</option>
+                            <option v-for="bl in getFemaleOptionList(index)" :key="bl.id" :value="bl.id">
+                                {{ bl.bloodline }} {{ index > 0 ? `(${bl.code})` : '' }}
+                            </option>
+                        </select>
+                    </div>
+                    <input v-model="category.newBloodlineName" class="cbf-op-name-input" placeholder="新血脉名">
+                    <input v-model.number="category.addCount" type="number" min="1" class="cbf-op-count-input" value="1">
+                    <button class="cbf-op-btn" @click="addBloodlineToCBF(index)" :disabled="!category.selectedMaleId || !category.selectedFemaleId || !category.newBloodlineName.trim()">添加</button>
                 </div>
 
-                <!-- 亲子本列表 -->
                 <div class="parent-btn-list">
-                    <div class="parent-btn" v-for="(item, idx) in category.data" :key="item.id" @click="openItemDetailModal(index, item)">
-                        <div class="parent-btn-title">{{item.bloodline}}</div>
-                        <div class="parent-btn-content">{{item.parentRelation || '暂无亲子关系'}}</div>
-                        <div class="parent-btn-extra">
-                            <span>数量: {{item.count || 1}}</span>
-                            <div class="care-tags-wrap" v-if="item.careCodes && item.careCodes.length>0">
-                                <span class="care-tag" v-for="code in item.careCodes" :key="code">特别关心({{code}})</span>
+                    <div class="parent-btn" v-for="item in category.data" :key="item.id" @click="openItemDetailModal(index, item)">
+                        <div class="parent-btn-title">{{ item.bloodline }}</div>
+                        <div class="parent-btn-parents">父: {{ item.fatherName }} | 母: {{ item.motherName }}</div>
+                        <div class="parent-btn-extra"><span>数量: {{ item.count || 1 }}</span></div>
+                    </div>
+                </div>
+
+                <div v-if="category.subspeciesList.length > 0">
+                    <div class="subspecies-header">次级种</div>
+                    <div class="subspecies-gender-columns">
+                        <div class="subspecies-gender-column">
+                            <div class="subspecies-gender-column-header male">公次级种</div>
+                            <div class="parent-btn-list">
+                                <div class="subspecies-btn" v-for="item in getSubspeciesMale(index)" :key="item.id" @click="openSubspeciesDetailModal(index, item)">
+                                    <div class="parent-btn-title">{{ item.bloodline }} ({{ item.code }})</div>
+                                    <div class="parent-btn-parents">父: {{ item.fatherName }} | 母: {{ item.motherName }}</div>
+                                </div>
+                                <div v-if="getSubspeciesMale(index).length === 0" style="padding:16px; text-align:center; color:#718096">暂无公次级种</div>
+                            </div>
+                        </div>
+                        <div class="subspecies-gender-column">
+                            <div class="subspecies-gender-column-header female">母次级种</div>
+                            <div class="parent-btn-list">
+                                <div class="subspecies-btn" v-for="item in getSubspeciesFemale(index)" :key="item.id" @click="openSubspeciesDetailModal(index, item)">
+                                    <div class="parent-btn-title">{{ item.bloodline }} ({{ item.code }})</div>
+                                    <div class="parent-btn-parents">父: {{ item.fatherName }} | 母: {{ item.motherName }}</div>
+                                </div>
+                                <div v-if="getSubspeciesFemale(index).length === 0" style="padding:16px; text-align:center; color:#718096">暂无母次级种</div>
                             </div>
                         </div>
                     </div>
-                    <div v-if="category.data.length === 0" style="padding:20px; text-align:center; color:#718096">暂无数据</div>
                 </div>
+
+                <div v-if="category.data.length === 0 && category.subspeciesList.length === 0" style="padding:20px; text-align:center; color:#718096">暂无数据</div>
             </div>
         </div>
 
-        <!-- 添加血脉源头弹窗 -->
-        <div class="modal-mask" v-if="isAddBloodlineModalOpen" @click="closeAddBloodlineModal">
+        <!-- 弹窗区域（带动画） -->
+        <!-- 添加血脉弹窗 -->
+        <div class="modal-mask" :class="{active: isAddBloodlineModalOpen}" @click="closeAddBloodlineModal">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
                     <h3>添加血脉源头</h3>
                     <button @click="closeAddBloodlineModal" class="modal-close">×</button>
                 </div>
-                <div>
-                    <div class="form-group"><label>血脉名称：</label><input v-model="currentBloodline.bloodline" placeholder="如：亮胸、琉璃"></div>
-                    <div class="form-group"><label>体长(mm)：</label><input v-model="currentBloodline.bodyLength"></div>
-                    <div class="form-group">
-                        <label>胸部颜色：</label>
-                        <div class="color-group">
-                            <select v-model="currentBloodline.chestColor1"><option value="">颜色1</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                            <select v-model="currentBloodline.chestColor2"><option value="">颜色2</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>鞘翅颜色：</label>
-                        <div class="color-group">
-                            <select v-model="currentBloodline.sheathColor1"><option value="">颜色1</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                            <select v-model="currentBloodline.sheathColor2"><option value="">颜色2</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                        </div>
-                    </div>
-                    <div class="form-group"><label>详细备注：</label><input v-model="currentBloodline.remark" placeholder="添加详细说明信息"></div>
-                    <button @click="saveBloodline" style="width:100%; margin-top:10px">保存</button>
-                </div>
+                <div class="form-group"><label>性别：</label><select v-model="currentBloodline.gender"><option value="male">公</option><option value="female">母</option></select></div>
+                <div class="form-group"><label>血脉名：</label><input v-model="currentBloodline.bloodline" placeholder="必填"></div>
+                <div class="form-group"><label>体长(mm)：</label><input v-model="currentBloodline.bodyLength"></div>
+                <div class="form-group"><label>胸色：</label><div class="color-group"><select v-model="currentBloodline.chestColor1"><option value="">颜色1</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select><select v-model="currentBloodline.chestColor2"><option value="">颜色2</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select></div></div>
+                <div class="form-group"><label>鞘翅色：</label><div class="color-group"><select v-model="currentBloodline.sheathColor1"><option value="">颜色1</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select><select v-model="currentBloodline.sheathColor2"><option value="">颜色2</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select></div></div>
+                <div class="form-group"><label>备注：</label><input v-model="currentBloodline.remark"></div>
+                <button @click="saveBloodline" style="width:100%; margin-top:10px">保存</button>
             </div>
         </div>
 
-        <!-- 修改血脉源头弹窗 -->
-        <div class="modal-mask edit-bloodline-modal-mask" v-if="isEditBloodlineModalOpen" @click="closeEditBloodlineModal">
+        <!-- 修改血脉弹窗 -->
+        <div class="modal-mask" :class="{active: isEditBloodlineModalOpen}" @click="closeEditBloodlineModal">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
-                    <h3>修改血脉源头</h3>
+                    <h3>修改血脉</h3>
                     <button @click="closeEditBloodlineModal" class="modal-close">×</button>
                 </div>
-                <div>
-                    <div class="form-group"><label>血脉名称：</label><input v-model="editBloodline.bloodline" placeholder="如：亮胸、琉璃"></div>
-                    <div class="form-group"><label>体长(mm)：</label><input v-model="editBloodline.bodyLength"></div>
-                    <div class="form-group">
-                        <label>胸部颜色：</label>
-                        <div class="color-group">
-                            <select v-model="editBloodline.chestColor1"><option value="">颜色1</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                            <select v-model="editBloodline.chestColor2"><option value="">颜色2</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>鞘翅颜色：</label>
-                        <div class="color-group">
-                            <select v-model="editBloodline.sheathColor1"><option value="">颜色1</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                            <select v-model="editBloodline.sheathColor2"><option value="">颜色2</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                        </div>
-                    </div>
-                    <div class="form-group"><label>详细备注：</label><input v-model="editBloodline.remark" placeholder="添加详细说明信息"></div>
-                    <button @click="saveEditBloodline" style="width:100%; margin-top:10px">保存修改</button>
-                </div>
+                <div class="form-group"><label>性别：</label><select v-model="editBloodline.gender"><option value="male">公</option><option value="female">母</option></select></div>
+                <div class="form-group"><label>血脉名：</label><input v-model="editBloodline.bloodline"></div>
+                <div class="form-group"><label>体长(mm)：</label><input v-model="editBloodline.bodyLength"></div>
+                <div class="form-group"><label>胸色：</label><div class="color-group"><select v-model="editBloodline.chestColor1"><option value="">颜色1</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select><select v-model="editBloodline.chestColor2"><option value="">颜色2</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select></div></div>
+                <div class="form-group"><label>鞘翅色：</label><div class="color-group"><select v-model="editBloodline.sheathColor1"><option value="">颜色1</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select><select v-model="editBloodline.sheathColor2"><option value="">颜色2</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select></div></div>
+                <div class="form-group"><label>备注：</label><input v-model="editBloodline.remark"></div>
+                <button @click="saveEditBloodline" style="width:100%; margin-top:10px">保存修改</button>
             </div>
         </div>
 
         <!-- 亲子本详情弹窗 -->
-        <div class="modal-mask detail-modal-mask" v-if="isItemDetailModalOpen" @click="closeItemDetailModal">
+        <div class="modal-mask" :class="{active: isItemDetailModalOpen}" @click="closeItemDetailModal">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
-                    <h3>{{currentItem.bloodline || '详情'}}</h3>
+                    <h3>{{ currentItem.bloodline }}</h3>
                     <button @click="closeItemDetailModal" class="modal-close">×</button>
                 </div>
-                <div>
-                    <div class="form-group"><label>血脉名称：</label><span>{{currentItem.bloodline || '无'}}</span></div>
-                    <div class="form-group">
-                        <label>父本：</label>
-                        <button class="select-btn" @click="openSelectParentModal('father')">选择父本</button>
-                        <span style="margin-left:8px">{{currentItem.fatherName || '未选择'}}</span>
-                    </div>
-                    <div class="form-group">
-                        <label>母本：</label>
-                        <button class="select-btn" @click="openSelectParentModal('mother')">选择母本</button>
-                        <span style="margin-left:8px">{{currentItem.motherName || '未选择'}}</span>
-                    </div>
-                    <div class="form-group"><label>亲子关系：</label><span>{{currentItem.parentRelation || '暂无'}}</span></div>
-                    <div class="form-group">
-                        <label>特别关心：</label>
-                        <button class="care-btn" @click="openCareModal">{{currentItem.careCodes && currentItem.careCodes.length>0 ? '编辑特别关心' : '标记为特别关心'}}</button>
-                    </div>
-                    <div class="form-group"><label>数量：</label><input v-model.number="currentItem.count" type="number" min="1" :value="currentItem.count || 1"></div>
-                    <div style="margin-top:15px; display:flex; gap:8px">
-                        <button @click="saveItemDetail" style="flex:1">保存修改</button>
-                        <button @click="deleteItem" class="delete-btn">删除</button>
-                    </div>
+                <div class="form-group"><label>血脉名：</label><span>{{ currentItem.bloodline }}</span></div>
+                <div class="form-group"><label>父本：</label><span>{{ currentItem.fatherName }}</span></div>
+                <div class="form-group"><label>母本：</label><span>{{ currentItem.motherName }}</span></div>
+                <div class="form-group"><label>数量：</label><input v-model.number="currentItem.count" min="1"></div>
+                <div class="form-group"><label>备注：</label><input v-model="currentItem.remark"></div>
+                <div class="form-group"><label>次级种：</label><button class="add-subspecies-btn" @click="openSubspeciesModal">标记为次级种</button></div>
+                <div style="display:flex; gap:8px; margin-top:15px">
+                    <button @click="saveItemDetail" style="flex:1">保存</button>
+                    <button @click="deleteItem" class="delete-btn">删除</button>
                 </div>
             </div>
         </div>
 
-        <!-- 选择父本/母本弹窗 -->
-        <div class="modal-mask parent-select-modal-mask" v-if="isSelectParentModalOpen" @click="closeSelectParentModal">
+        <!-- 次级种详情弹窗 -->
+        <div class="modal-mask" :class="{active: isSubspeciesDetailModalOpen}" @click="closeSubspeciesDetailModal">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
-                    <h3>选择{{selectParentType}}血脉</h3>
-                    <button @click="closeSelectParentModal" class="modal-close">×</button>
+                    <h3>{{ currentSubspeciesItem.bloodline }} ({{ currentSubspeciesItem.code }})</h3>
+                    <button @click="closeSubspeciesDetailModal" class="modal-close">×</button>
                 </div>
-                <div class="search-bar" style="margin:10px 0">
-                    <input v-model="selectParentKeyword" placeholder="搜索血脉名称..." class="add-input">
-                </div>
-                <div class="select-list">
-                    <div class="select-item" v-for="bl in filteredParentList" :key="bl.id" @click="confirmParentSelect(bl)">
-                        <div class="select-item-info">
-                            <div class="select-item-name">{{bl.bloodline}} <span v-if="bl.careCodes && bl.careCodes.length>0" class="care-tag">{{bl.careCodes[0]}}</span></div>
-                            <div class="select-item-desc">体长: {{bl.bodyLength || '未知'}}mm | 胸部: {{bl.chestColor1 || '无'}}+{{bl.chestColor2 || '无'}}</div>
-                            <div class="select-item-desc">鞘翅: {{bl.sheathColor1 || '无'}}+{{bl.sheathColor2 || '无'}} | 备注: {{bl.remark || '无'}}</div>
-                        </div>
-                    </div>
-                    <div v-if="filteredParentList.length === 0" style="padding:20px; text-align:center; color:#718096">无匹配血脉</div>
+                <div class="form-group"><label>血脉名：</label><span>{{ currentSubspeciesItem.bloodline }}</span></div>
+                <div class="form-group"><label>编号：</label><span>{{ currentSubspeciesItem.code }}</span></div>
+                <div class="form-group"><label>性别：</label><span>{{ currentSubspeciesItem.gender === 'male' ? '公' : '母' }}</span></div>
+                <div class="form-group"><label>父本：</label><span>{{ currentSubspeciesItem.fatherName }}</span></div>
+                <div class="form-group"><label>母本：</label><span>{{ currentSubspeciesItem.motherName }}</span></div>
+                <div class="form-group"><label>蛹重(g)：</label><input v-model="currentSubspeciesItem.pupaWeight"></div>
+                <div class="form-group"><label>体长(mm)：</label><input v-model="currentSubspeciesItem.bodyLength"></div>
+                <div class="form-group"><label>胸色：</label><div class="color-group"><select v-model="currentSubspeciesItem.chestColor1"><option value="">颜色1</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select><select v-model="currentSubspeciesItem.chestColor2"><option value="">颜色2</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select></div></div>
+                <div class="form-group"><label>鞘翅色：</label><div class="color-group"><select v-model="currentSubspeciesItem.sheathColor1"><option value="">颜色1</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select><select v-model="currentSubspeciesItem.sheathColor2"><option value="">颜色2</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select></div></div>
+                <div class="form-group"><label>备注：</label><input v-model="currentSubspeciesItem.remark"></div>
+                <div style="display:flex; gap:8px; margin-top:15px">
+                    <button @click="saveSubspeciesDetail" style="flex:1">保存</button>
+                    <button @click="deleteSubspeciesItem" class="delete-btn">删除</button>
                 </div>
             </div>
         </div>
 
-        <!-- 特别关心弹窗 -->
-        <div class="modal-mask care-modal-mask" v-if="isCareModalOpen" @click="closeCareModal">
+        <!-- 次级种设置弹窗 -->
+        <div class="modal-mask" :class="{active: isSubspeciesModalOpen}" @click="closeSubspeciesModal">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
-                    <h3>特别关心设置</h3>
-                    <button @click="closeCareModal" class="modal-close">×</button>
+                    <h3>设为次级种</h3>
+                    <button @click="closeSubspeciesModal" class="modal-close">×</button>
                 </div>
                 <div>
-                    <div style="font-size:13px; font-weight:600; margin-bottom:8px">特别关心编号（可添加多个）：</div>
-                    <div class="care-code-wrap">
-                        <div class="care-code-item" v-for="(code, idx) in currentCare.careCodes" :key="idx">
-                            {{code}}
-                            <span class="care-code-remove" @click="removeCareCode(idx)">×</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:4px">
-                            <input v-model="newCareCode" placeholder="输入编号" style="flex:1; min-width:80px; padding:5px">
-                            <button class="add-care-code-btn" @click="addCareCode">+添加</button>
-                        </div>
+                    <div style="font-weight:600; margin-bottom:8px">次级种编号</div>
+                    <div style="display:flex; gap:8px; margin-bottom:10px">
+                        <input v-model="newSubspeciesCode" placeholder="输入编号" style="flex:1; padding:7px; border:1px solid #cbd5e0; border-radius:4px;">
+                        <button class="add-subspecies-btn" @click="addSubspeciesCode" :disabled="!newSubspeciesCode.trim()">+加编号</button>
                     </div>
-                    <div class="form-group"><label>详细备注：</label><input v-model="currentCare.remark" placeholder="添加特别说明"></div>
-                    <div class="form-group"><label>蛹重(g)：</label><input v-model="currentCare.pupaWeight"></div>
-                    <div class="form-group"><label>体长(mm)：</label><input v-model="currentCare.bodyLength"></div>
-                    <div class="form-group">
-                        <label>胸部颜色：</label>
-                        <div class="color-group">
-                            <select v-model="currentCare.chestColor1"><option value="">颜色1</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                            <select v-model="currentCare.chestColor2"><option value="">颜色2</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                        </div>
+                    <div class="subspecies-code-wrap" v-if="currentSubspecies.codes.length > 0">
+                        <div class="subspecies-code-item" v-for="(code,idx) in currentSubspecies.codes" :key="idx">{{ code }}<span class="subspecies-code-remove" @click="removeSubspeciesCode(idx)">×</span></div>
                     </div>
-                    <div class="form-group">
-                        <label>鞘翅颜色：</label>
-                        <div class="color-group">
-                            <select v-model="currentCare.sheathColor1"><option value="">颜色1</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                            <select v-model="currentCare.sheathColor2"><option value="">颜色2</option><option value="绿">绿</option><option value="红">红</option><option value="蓝">蓝</option><option value="紫">紫</option></select>
-                        </div>
-                    </div>
-                    <button @click="saveCareSetting" style="width:100%; margin-top:10px">保存设置</button>
                 </div>
+                <div class="form-group"><label>性别：</label><select v-model="currentSubspecies.gender"><option value="male">公</option><option value="female">母</option></select></div>
+                <div class="form-group"><label>蛹重(g)：</label><input v-model="currentSubspecies.pupaWeight"></div>
+                <div class="form-group"><label>体长(mm)：</label><input v-model="currentSubspecies.bodyLength"></div>
+                <div class="form-group"><label>胸色：</label><div class="color-group"><select v-model="currentSubspecies.chestColor1"><option value="">颜色1</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select><select v-model="currentSubspecies.chestColor2"><option value="">颜色2</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select></div></div>
+                <div class="form-group"><label>鞘翅色：</label><div class="color-group"><select v-model="currentSubspecies.sheathColor1"><option value="">颜色1</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select><select v-model="currentSubspecies.sheathColor2"><option value="">颜色2</option><option>绿</option><option>红</option><option>蓝</option><option>紫</option></select></div></div>
+                <div class="form-group"><label>备注：</label><input v-model="currentSubspecies.remark"></div>
+                <button @click="saveSubspeciesSetting" class="add-subspecies-btn" style="width:100%; margin-top:10px">确认添加</button>
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        if(window.Vue) {
             const { createApp } = Vue;
             createApp({
                 data() {
@@ -339,46 +365,70 @@
                         },
                         ghStatus: { connected: false, message: '未连接' },
                         fileSha: '',
-                        
-                        // 血脉库（全局）
                         bloodlineLib: [],
-                        // CBF分类
                         categories: [
-                            { name: 'CBF1', isOpen: true, data: [], selectedBloodlineId: '', addCount: 1 }
+                            { 
+                                id: Date.now()+'init',
+                                isOpen: true, 
+                                data: [], 
+                                subspeciesList: [],
+                                selectedMaleId: '', 
+                                selectedFemaleId: '',
+                                newBloodlineName: '',
+                                addCount: 1 
+                            }
                         ],
-                        nextCategoryIndex: 2,
-                        
-                        // 新增血脉相关
+                        newBloodlineGender: 'male',
                         newBloodlineName: '',
-                        currentBloodline: { id: '', bloodline: '', bodyLength: '', chestColor1: '', chestColor2: '', sheathColor1: '', sheathColor2: '', remark: '' },
+                        currentBloodline: {},
                         isAddBloodlineModalOpen: false,
-                        // 修改血脉相关
                         isEditBloodlineModalOpen: false,
                         editBloodline: {},
-                        
-                        // 选择父本/母本弹窗
-                        isSelectParentModalOpen: false,
-                        selectParentType: 'father',
-                        selectParentKeyword: '',
-                        // 详情弹窗
                         isItemDetailModalOpen: false,
                         currentCategoryIndex: -1,
                         currentItem: {},
-                        // 特别关心弹窗
-                        isCareModalOpen: false,
-                        currentCare: { careCodes: [], remark: '', pupaWeight: '', bodyLength: '', chestColor1: '', chestColor2: '', sheathColor1: '', sheathColor2: '' },
-                        newCareCode: ''
+                        isSubspeciesDetailModalOpen: false,
+                        currentSubspeciesItem: {},
+                        isSubspeciesModalOpen: false,
+                        currentSubspecies: { codes: [], gender: 'male', remark: '', pupaWeight: '', bodyLength: '', chestColor1: '', chestColor2: '', sheathColor1: '', sheathColor2: '' },
+                        newSubspeciesCode: ''
                     };
                 },
                 computed: {
-                    filteredParentList() {
-                        if (!this.selectParentKeyword.trim()) return [...this.bloodlineLib, ...this.categories.flatMap(c => c.data)];
-                        const kw = this.selectParentKeyword.toLowerCase();
-                        return [...this.bloodlineLib, ...this.categories.flatMap(c => c.data)].filter(bl => bl.bloodline.toLowerCase().includes(kw));
-                    }
+                    maleBloodlines() { return this.bloodlineLib.filter(bl => bl.gender === 'male'); },
+                    femaleBloodlines() { return this.bloodlineLib.filter(bl => bl.gender === 'female'); }
                 },
                 methods: {
-                    // --- 云同步逻辑 ---
+                    addNewCBFCategory() {
+                        const newCBF = {
+                            id: Date.now()+'-cbf-'+this.categories.length,
+                            isOpen: false,
+                            data: [],
+                            subspeciesList: [],
+                            selectedMaleId: '',
+                            selectedFemaleId: '',
+                            newBloodlineName: '',
+                            addCount: 1
+                        };
+                        this.categories.push(newCBF);
+                        setTimeout(()=>this.syncToCloud(),200);
+                    },
+                    getMaleOptionList(index) {
+                        if(index === 0) return this.maleBloodlines;
+                        const prev = this.categories[index-1];
+                        return prev ? prev.subspeciesList.filter(i => i.gender === 'male') : [];
+                    },
+                    getFemaleOptionList(index) {
+                        if(index === 0) return this.femaleBloodlines;
+                        const prev = this.categories[index-1];
+                        return prev ? prev.subspeciesList.filter(i => i.gender === 'female') : [];
+                    },
+                    getSubspeciesMale(index){
+                        return this.categories[index]?.subspeciesList.filter(i => i.gender === 'male') || [];
+                    },
+                    getSubspeciesFemale(index){
+                        return this.categories[index]?.subspeciesList.filter(i => i.gender === 'female') || [];
+                    },
                     saveConfig() {
                         localStorage.setItem('gh_token', this.gh.token);
                         localStorage.setItem('gh_owner', this.gh.owner);
@@ -386,105 +436,84 @@
                         this.loadFromGitHub();
                     },
                     async loadFromGitHub() {
-                        if (!this.gh.token || !this.gh.owner || !this.gh.repo) return;
+                        if(!this.gh.token || !this.gh.owner || !this.gh.repo) return;
                         try {
-                            const res = await fetch(`https://api.github.com/repos/${this.gh.owner}/${this.gh.repo}/contents/${this.gh.path}?t=${Date.now()}`, {
-                                headers: {
-                                    'Authorization': `token ${this.gh.token}`,
-                                    'Accept': 'application/vnd.github.v3+json'
-                                }
+                            const res = await fetch(`https://api.github.com/repos/${this.gh.owner}/${this.gh.repo}/contents/${this.gh.path}?t=${Date.now()}`,{
+                                headers: {'Authorization': `token ${this.gh.token}`}
                             });
-                            if (res.status === 200) {
+                            if(res.ok){
                                 const json = await res.json();
                                 this.fileSha = json.sha;
-                                const content = decodeURIComponent(escape(atob(json.content)));
-                                const cloudData = JSON.parse(content);
-                                if (cloudData.bloodlineLib) this.bloodlineLib = cloudData.bloodlineLib;
-                                if (cloudData.categories) this.categories = cloudData.categories;
-                                this.nextCategoryIndex = this.categories.length + 1;
-                                this.ghStatus = { connected: true, message: '云端已连接' };
-                            } else {
-                                this.ghStatus = { connected: false, message: '找不到 data.json' };
+                                const data = JSON.parse(decodeURIComponent(escape(atob(json.content))));
+                                this.bloodlineLib = data.bloodlineLib || [];
+                                this.categories = data.categories || this.categories;
+                                this.ghStatus = {connected: true, message: '已连接'};
+                            }else{
+                                this.ghStatus = {connected: false, message: '无data.json'};
                             }
-                        } catch (e) {
-                            this.ghStatus = { connected: false, message: '同步失败' };
+                        }catch(e){
+                            this.ghStatus = {connected: false, message: '同步失败'};
                         }
                     },
                     async syncToCloud() {
-                        if (!this.ghStatus.connected) return;
-                        const syncData = { bloodlineLib: this.bloodlineLib, categories: this.categories };
-                        const content = btoa(unescape(encodeURIComponent(JSON.stringify(syncData, null, 2))));
-                        try {
-                            const res = await fetch(`https://api.github.com/repos/${this.gh.owner}/${this.gh.repo}/contents/${this.gh.path}`, {
+                        if(!this.ghStatus.connected) return;
+                        try{
+                            const content = btoa(unescape(encodeURIComponent(JSON.stringify({
+                                bloodlineLib: this.bloodlineLib,
+                                categories: this.categories
+                            }, null, 2))));
+                            const res = await fetch(`https://api.github.com/repos/${this.gh.owner}/${this.gh.repo}/contents/${this.gh.path}`,{
                                 method: 'PUT',
                                 headers: {
                                     'Authorization': `token ${this.gh.token}`,
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify({ message: "Sync Update", content, sha: this.fileSha })
+                                body: JSON.stringify({
+                                    message: "Update",
+                                    content: content,
+                                    sha: this.fileSha
+                                })
                             });
-                            if (res.ok) {
-                                const json = await res.json();
-                                this.fileSha = json.content.sha;
-                            }
-                        } catch (e) {
-                            console.error("云同步失败", e);
+                            if(res.ok) this.fileSha = (await res.json()).content.sha;
+                        }catch(e){
+                            console.log('同步失败', e);
                         }
                     },
-
-                    // --- CBF分类逻辑 ---
                     toggleCategory(index) {
                         this.categories[index].isOpen = !this.categories[index].isOpen;
-                        if (this.categories[index].isOpen && index === this.categories.length - 1) {
-                            this.categories.push({
-                                name: `CBF${this.nextCategoryIndex++}`,
-                                isOpen: false,
-                                data: [],
-                                selectedBloodlineId: '',
-                                addCount: 1
-                            });
-                        }
                     },
                     addBloodlineToCBF(cbfIndex) {
                         const cbf = this.categories[cbfIndex];
-                        // CBF1选血脉源头，CBF2+选上一级CBF数据
-                        const sourceList = cbfIndex === 0 ? this.bloodlineLib : this.categories[cbfIndex-1].data;
-                        const bl = sourceList.find(item => item.id === cbf.selectedBloodlineId);
-                        if (!bl) return;
-                        
-                        const existItem = cbf.data.find(item => item.bloodlineId === bl.id);
-                        if (existItem) {
-                            existItem.count = (existItem.count || 1) + cbf.addCount;
-                        } else {
-                            cbf.data.push({
-                                id: Date.now().toString(),
-                                bloodlineId: bl.id,
-                                bloodline: bl.bloodline,
-                                count: cbf.addCount,
-                                fatherId: '',
-                                fatherName: '',
-                                motherId: '',
-                                motherName: '',
-                                parentRelation: '',
-                                careCodes: [],
-                                bodyLength: bl.bodyLength,
-                                pupaWeight: bl.pupaWeight,
-                                chestColor1: bl.chestColor1,
-                                chestColor2: bl.chestColor2,
-                                sheathColor1: bl.sheathColor1,
-                                sheathColor2: bl.sheathColor2,
-                                remark: bl.remark
-                            });
+                        let maleBl, femaleBl;
+                        if(cbfIndex === 0){
+                            maleBl = this.maleBloodlines.find(i => i.id === cbf.selectedMaleId);
+                            femaleBl = this.femaleBloodlines.find(i => i.id === cbf.selectedFemaleId);
+                        }else{
+                            const prev = this.categories[cbfIndex-1];
+                            maleBl = prev.subspeciesList.find(i => i.id === cbf.selectedMaleId);
+                            femaleBl = prev.subspeciesList.find(i => i.id === cbf.selectedFemaleId);
                         }
+                        if(!maleBl || !femaleBl) return;
+                        
+                        cbf.data.push({
+                            id: Date.now().toString(),
+                            bloodline: cbf.newBloodlineName.trim(),
+                            count: cbf.addCount,
+                            fatherId: maleBl.id,
+                            fatherName: cbfIndex === 0 ? maleBl.bloodline : `${maleBl.bloodline}(${maleBl.code})`,
+                            motherId: femaleBl.id,
+                            motherName: cbfIndex === 0 ? femaleBl.bloodline : `${femaleBl.bloodline}(${femaleBl.code})`,
+                            parentRelation: `${maleBl.bloodline}×${femaleBl.bloodline}`,
+                            remark: ''
+                        });
                         this.syncToCloud();
-                        cbf.selectedBloodlineId = '';
+                        cbf.selectedMaleId = cbf.selectedFemaleId = cbf.newBloodlineName = '';
                         cbf.addCount = 1;
                     },
-
-                    // --- 血脉源头弹窗 ---
                     openAddBloodlineModal() {
                         this.currentBloodline = {
                             id: Date.now().toString(),
+                            gender: this.newBloodlineGender,
                             bloodline: this.newBloodlineName || '',
                             bodyLength: '',
                             chestColor1: '',
@@ -500,8 +529,8 @@
                         this.newBloodlineName = '';
                     },
                     saveBloodline() {
-                        if (!this.currentBloodline.bloodline.trim()) {
-                            alert('血脉名称不能为空！');
+                        if(!this.currentBloodline.bloodline.trim()){
+                            alert('血脉名必填');
                             return;
                         }
                         this.bloodlineLib.push(this.currentBloodline);
@@ -509,7 +538,6 @@
                         this.closeAddBloodlineModal();
                         alert('添加成功');
                     },
-                    // 修改血脉源头
                     openEditBloodlineModal(bl) {
                         this.editBloodline = JSON.parse(JSON.stringify(bl));
                         this.isEditBloodlineModalOpen = true;
@@ -518,40 +546,15 @@
                         this.isEditBloodlineModalOpen = false;
                     },
                     saveEditBloodline() {
-                        const idx = this.bloodlineLib.findIndex(item => item.id === this.editBloodline.id);
-                        if (idx > -1) {
+                        const idx = this.bloodlineLib.findIndex(i => i.id === this.editBloodline.id);
+                        if(idx > -1){
                             this.bloodlineLib[idx] = this.editBloodline;
                             this.syncToCloud();
                             this.closeEditBloodlineModal();
                             alert('修改成功');
                         }
                     },
-
-                    // --- 选择父本/母本弹窗 ---
-                    openSelectParentModal(type) {
-                        this.selectParentType = type;
-                        this.selectParentKeyword = '';
-                        this.isSelectParentModalOpen = true;
-                    },
-                    confirmParentSelect(bl) {
-                        if (this.selectParentType === 'father') {
-                            this.currentItem.fatherId = bl.id;
-                            this.currentItem.fatherName = bl.bloodline;
-                        } else {
-                            this.currentItem.motherId = bl.id;
-                            this.currentItem.motherName = bl.bloodline;
-                        }
-                        this.currentItem.parentRelation = this.currentItem.fatherName && this.currentItem.motherName 
-                            ? `(${this.currentItem.fatherName}) × (${this.currentItem.motherName})` 
-                            : '';
-                        this.closeSelectParentModal();
-                    },
-                    closeSelectParentModal() {
-                        this.isSelectParentModalOpen = false;
-                    },
-
-                    // --- 亲子本详情弹窗 ---
-                    openItemDetailModal(cbfIndex, item) {
+                    openItemDetailModal(cbfIndex, item) { 
                         this.currentCategoryIndex = cbfIndex;
                         this.currentItem = JSON.parse(JSON.stringify(item));
                         this.isItemDetailModalOpen = true;
@@ -562,83 +565,109 @@
                     },
                     saveItemDetail() {
                         const cbf = this.categories[this.currentCategoryIndex];
-                        const idx = cbf.data.findIndex(item => item.id === this.currentItem.id);
-                        if (idx > -1) {
+                        const idx = cbf.data.findIndex(i => i.id === this.currentItem.id);
+                        if(idx > -1){
                             cbf.data[idx] = this.currentItem;
-                            // 同步更新源头/上级数据
-                            const sourceList = this.currentCategoryIndex === 0 ? this.bloodlineLib : this.categories[this.currentCategoryIndex-1].data;
-                            const blIdx = sourceList.findIndex(bl => bl.id === this.currentItem.bloodlineId);
-                            if (blIdx > -1) {
-                                sourceList[blIdx] = {
-                                    ...sourceList[blIdx],
-                                    bodyLength: this.currentItem.bodyLength,
-                                    pupaWeight: this.currentItem.pupaWeight,
-                                    chestColor1: this.currentItem.chestColor1,
-                                    chestColor2: this.currentItem.chestColor2,
-                                    sheathColor1: this.currentItem.sheathColor1,
-                                    sheathColor2: this.currentItem.sheathColor2,
-                                    remark: this.currentItem.remark,
-                                    careCodes: this.currentItem.careCodes
-                                };
-                            }
                             this.syncToCloud();
                             this.closeItemDetailModal();
-                            alert('修改保存成功');
+                            alert('保存成功');
                         }
                     },
                     deleteItem() {
-                        if (!confirm("确定删除吗？")) return;
+                        if(!confirm('确定删除？')) return;
                         const cbf = this.categories[this.currentCategoryIndex];
-                        cbf.data = cbf.data.filter(item => item.id !== this.currentItem.id);
+                        cbf.data = cbf.data.filter(i => i.id !== this.currentItem.id);
+                        cbf.subspeciesList = cbf.subspeciesList.filter(i => i.sourceId !== this.currentItem.id);
                         this.syncToCloud();
                         this.closeItemDetailModal();
                     },
-
-                    // --- 特别关心弹窗 ---
-                    openCareModal() {
-                        this.currentCare = {
-                            careCodes: [...(this.currentItem.careCodes || [])],
-                            remark: this.currentItem.remark || '',
-                            pupaWeight: this.currentItem.pupaWeight || '',
-                            bodyLength: this.currentItem.bodyLength || '',
-                            chestColor1: this.currentItem.chestColor1 || '',
-                            chestColor2: this.currentItem.chestColor2 || '',
-                            sheathColor1: this.currentItem.sheathColor1 || '',
-                            sheathColor2: this.currentItem.sheathColor2 || ''
-                        };
-                        this.newCareCode = '';
-                        this.isCareModalOpen = true;
+                    openSubspeciesDetailModal(cbfIndex, item) { 
+                        this.currentCategoryIndex = cbfIndex;
+                        this.currentSubspeciesItem = JSON.parse(JSON.stringify(item));
+                        this.isSubspeciesDetailModalOpen = true;
                     },
-                    closeCareModal() {
-                        this.isCareModalOpen = false;
+                    closeSubspeciesDetailModal() {
+                        this.isSubspeciesDetailModalOpen = false;
+                        this.currentSubspeciesItem = {};
                     },
-                    addCareCode() {
-                        if (!this.newCareCode.trim()) return;
-                        if (!this.currentCare.careCodes.includes(this.newCareCode)) {
-                            this.currentCare.careCodes.push(this.newCareCode);
+                    saveSubspeciesDetail() {
+                        const cbf = this.categories[this.currentCategoryIndex];
+                        const idx = cbf.subspeciesList.findIndex(i => i.id === this.currentSubspeciesItem.id);
+                        if(idx > -1){
+                            cbf.subspeciesList[idx] = this.currentSubspeciesItem;
+                            this.syncToCloud();
+                            this.closeSubspeciesDetailModal();
+                            alert('保存成功');
                         }
-                        this.newCareCode = '';
                     },
-                    removeCareCode(idx) {
-                        this.currentCare.careCodes.splice(idx, 1);
+                    deleteSubspeciesItem() {
+                        if(!confirm('确定删除？')) return;
+                        const cbf = this.categories[this.currentCategoryIndex];
+                        cbf.subspeciesList = cbf.subspeciesList.filter(i => i.id !== this.currentSubspeciesItem.id);
+                        this.syncToCloud();
+                        this.closeSubspeciesDetailModal();
                     },
-                    saveCareSetting() {
-                        this.currentItem.careCodes = this.currentCare.careCodes;
-                        this.currentItem.remark = this.currentCare.remark;
-                        this.currentItem.pupaWeight = this.currentCare.pupaWeight;
-                        this.currentItem.bodyLength = this.currentCare.bodyLength;
-                        this.currentItem.chestColor1 = this.currentCare.chestColor1;
-                        this.currentItem.chestColor2 = this.currentCare.chestColor2;
-                        this.currentItem.sheathColor1 = this.currentCare.sheathColor1;
-                        this.currentItem.sheathColor2 = this.currentCare.sheathColor2;
-                        this.closeCareModal();
+                    openSubspeciesModal() {
+                        this.currentSubspecies = {
+                            codes: [],
+                            gender: 'male',
+                            remark: '',
+                            pupaWeight: '',
+                            bodyLength: '',
+                            chestColor1: '',
+                            chestColor2: '',
+                            sheathColor1: '',
+                            sheathColor2: ''
+                        };
+                        this.newSubspeciesCode = '';
+                        this.isSubspeciesModalOpen = true;
+                    },
+                    closeSubspeciesModal() {
+                        this.isSubspeciesModalOpen = false;
+                    },
+                    addSubspeciesCode() {
+                        if(!this.newSubspeciesCode.trim() || this.currentSubspecies.codes.includes(this.newSubspeciesCode)) return;
+                        this.currentSubspecies.codes.push(this.newSubspeciesCode);
+                        this.newSubspeciesCode = '';
+                    },
+                    removeSubspeciesCode(idx) {
+                        this.currentSubspecies.codes.splice(idx, 1);
+                    },
+                    saveSubspeciesSetting() {
+                        if(!this.currentSubspecies.codes.length){
+                            alert('请添加次级种编号');
+                            return;
+                        }
+                        const cbf = this.categories[this.currentCategoryIndex];
+                        cbf.subspeciesList.push({
+                            id: Date.now().toString(),
+                            sourceId: this.currentItem.id,
+                            bloodline: this.currentItem.bloodline,
+                            code: this.currentSubspecies.codes.join(','),
+                            gender: this.currentSubspecies.gender,
+                            fatherName: this.currentItem.fatherName,
+                            motherName: this.currentItem.motherName,
+                            remark: this.currentSubspecies.remark,
+                            pupaWeight: this.currentSubspecies.pupaWeight,
+                            bodyLength: this.currentSubspecies.bodyLength,
+                            chestColor1: this.currentSubspecies.chestColor1,
+                            chestColor2: this.currentSubspecies.chestColor2,
+                            sheathColor1: this.currentSubspecies.sheathColor1,
+                            sheathColor2: this.currentSubspecies.sheathColor2
+                        });
+                        this.syncToCloud();
+                        this.closeSubspeciesModal();
+                        this.closeItemDetailModal();
+                        alert('设为次级种成功');
                     }
                 },
                 mounted() {
                     this.loadFromGitHub();
                 }
             }).mount('#app');
-        });
+        }else{
+            document.write('Vue加载失败，请刷新页面重试');
+        }
     </script>
 </body>
 </html>
