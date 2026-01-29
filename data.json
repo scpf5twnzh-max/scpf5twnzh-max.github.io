@@ -175,6 +175,17 @@
       "sheathColor1": "",
       "sheathColor2": "",
       "remark": ""
+    },
+    {
+      "id": "1769672551351",
+      "gender": "male",
+      "bloodline": "hs",
+      "bodyLength": "",
+      "chestColor1": "",
+      "chestColor2": "",
+      "sheathColor1": "",
+      "sheathColor2": "",
+      "remark": ""
     }
   ],
   "categories": [
@@ -349,10 +360,10 @@
         }
       ],
       "subspeciesList": [],
-      "selectedMaleId": "1769666002455",
-      "selectedFemaleId": "1769671201895",
-      "newBloodlineName": "A4",
-      "addCount": 39
+      "selectedMaleId": "",
+      "selectedFemaleId": "",
+      "newBloodlineName": "",
+      "addCount": 1
     },
     {
       "id": "1769671261003-cbf-1",
