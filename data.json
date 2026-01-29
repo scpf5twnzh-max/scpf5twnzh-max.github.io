@@ -181,24 +181,12 @@
     {
       "id": "1769515676775init",
       "isOpen": true,
-      "data": [
-        {
-          "id": "1769671522097",
-          "bloodline": "A",
-          "count": 17,
-          "fatherId": "1769666002455",
-          "fatherName": "G",
-          "motherId": "1769671164807",
-          "motherName": "G1",
-          "parentRelation": "G×G1",
-          "remark": ""
-        }
-      ],
+      "data": [],
       "subspeciesList": [],
       "selectedMaleId": "1769666002455",
-      "selectedFemaleId": "1769671164807",
-      "newBloodlineName": "A",
-      "addCount": 17
+      "selectedFemaleId": "1769671201895",
+      "newBloodlineName": "A1",
+      "addCount": 1
     },
     {
       "id": "1769671261003-cbf-1",
