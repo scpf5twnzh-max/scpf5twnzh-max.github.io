@@ -110,6 +110,16 @@
       "selectedFemaleId": "",
       "newBloodlineName": "",
       "addCount": 1
+    },
+    {
+      "id": "1769671261003-cbf-1",
+      "isOpen": false,
+      "data": [],
+      "subspeciesList": [],
+      "selectedMaleId": "",
+      "selectedFemaleId": "",
+      "newBloodlineName": "",
+      "addCount": 1
     }
   ]
 }
