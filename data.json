@@ -291,13 +291,24 @@
           "motherName": "GW",
           "parentRelation": "HP×GW",
           "remark": ""
+        },
+        {
+          "id": "1769672397184",
+          "bloodline": "F2",
+          "count": 31,
+          "fatherId": "1769671100686",
+          "fatherName": "HP",
+          "motherId": "1769671201895",
+          "motherName": "H0",
+          "parentRelation": "HP×H0",
+          "remark": ""
         }
       ],
       "subspeciesList": [],
       "selectedMaleId": "1769671100686",
-      "selectedFemaleId": "1769671328233",
-      "newBloodlineName": "F1",
-      "addCount": 110
+      "selectedFemaleId": "1769671201895",
+      "newBloodlineName": "F2",
+      "addCount": 31
     },
     {
       "id": "1769671261003-cbf-1",
