@@ -324,13 +324,24 @@
           "motherName": "Rx",
           "parentRelation": "P×Rx",
           "remark": ""
+        },
+        {
+          "id": "1769672509797",
+          "bloodline": "B3",
+          "count": 10,
+          "fatherId": "1769666065140",
+          "fatherName": "H",
+          "motherId": "1769671348437",
+          "motherName": "P",
+          "parentRelation": "H×P",
+          "remark": ""
         }
       ],
       "subspeciesList": [],
-      "selectedMaleId": "1769666045030",
-      "selectedFemaleId": "1769671366838",
-      "newBloodlineName": "C3",
-      "addCount": 6
+      "selectedMaleId": "1769666065140",
+      "selectedFemaleId": "1769671348437",
+      "newBloodlineName": "B3",
+      "addCount": 10
     },
     {
       "id": "1769671261003-cbf-1",
