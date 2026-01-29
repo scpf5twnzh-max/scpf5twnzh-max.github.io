@@ -225,13 +225,24 @@
           "motherName": "TL",
           "parentRelation": "P×TL",
           "remark": ""
+        },
+        {
+          "id": "1769671905412",
+          "bloodline": "D1",
+          "count": 18,
+          "fatherId": "1769671016355",
+          "fatherName": "YH",
+          "motherId": "1769671295467",
+          "motherName": "H1",
+          "parentRelation": "YH×H1",
+          "remark": ""
         }
       ],
       "subspeciesList": [],
-      "selectedMaleId": "1769666045030",
-      "selectedFemaleId": "1769671222240",
-      "newBloodlineName": "C1",
-      "addCount": 13
+      "selectedMaleId": "1769671016355",
+      "selectedFemaleId": "1769671295467",
+      "newBloodlineName": "D1",
+      "addCount": 18
     },
     {
       "id": "1769671261003-cbf-1",
