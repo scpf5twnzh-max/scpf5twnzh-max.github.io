@@ -1,1 +1,27 @@
-[]
+{
+  "bloodlineLib": [
+    {
+      "id": "1769666002455",
+      "gender": "male",
+      "bloodline": "G",
+      "bodyLength": "65",
+      "chestColor1": "绿",
+      "chestColor2": "",
+      "sheathColor1": "绿",
+      "sheathColor2": "",
+      "remark": ""
+    }
+  ],
+  "categories": [
+    {
+      "id": "1769515676775init",
+      "isOpen": true,
+      "data": [],
+      "subspeciesList": [],
+      "selectedMaleId": "",
+      "selectedFemaleId": "",
+      "newBloodlineName": "",
+      "addCount": 1
+    }
+  ]
+}
