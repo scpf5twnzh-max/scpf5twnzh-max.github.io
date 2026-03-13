@@ -460,7 +460,7 @@
         {
           "id": "1773377488606",
           "bloodline": "R1",
-          "count": 6,
+          "count": 9,
           "fatherId": "1773377444787",
           "fatherName": "RT",
           "motherId": "1773377457937",
@@ -481,10 +481,10 @@
         }
       ],
       "subspeciesList": [],
-      "selectedMaleId": "1773379919149",
-      "selectedFemaleId": "1773379991522",
-      "newBloodlineName": "R2",
-      "addCount": 7
+      "selectedMaleId": "",
+      "selectedFemaleId": "",
+      "newBloodlineName": "",
+      "addCount": 1
     },
     {
       "id": "1769671261003-cbf-1",
