@@ -566,13 +566,24 @@
           "motherName": "RJ",
           "parentRelation": "RJ×RJ",
           "remark": ""
+        },
+        {
+          "id": "1776496096573",
+          "bloodline": "R6",
+          "count": 12,
+          "fatherId": "1776495962015",
+          "fatherName": "Rbw",
+          "motherId": "1776495979678",
+          "motherName": "Rbw",
+          "parentRelation": "Rbw×Rbw",
+          "remark": ""
         }
       ],
       "subspeciesList": [],
-      "selectedMaleId": "1775893289270",
-      "selectedFemaleId": "1775893298233",
-      "newBloodlineName": "R5",
-      "addCount": 10
+      "selectedMaleId": "1776495962015",
+      "selectedFemaleId": "1776495979678",
+      "newBloodlineName": "R6",
+      "addCount": 12
     },
     {
       "id": "1769671261003-cbf-1",
