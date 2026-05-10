@@ -588,17 +588,6 @@
           "motherName": "Rbw",
           "parentRelation": "Rbw×Rbw",
           "remark": ""
-        },
-        {
-          "id": "1778393711796",
-          "bloodline": "G1",
-          "count": 3,
-          "fatherId": "1778393677081",
-          "fatherName": "TL",
-          "motherId": "1769671222240",
-          "motherName": "TL",
-          "parentRelation": "TL×TL",
-          "remark": ""
         }
       ],
       "subspeciesList": [],
