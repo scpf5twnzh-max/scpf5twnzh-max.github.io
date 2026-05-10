@@ -599,17 +599,6 @@
           "motherName": "TL",
           "parentRelation": "TL×TL",
           "remark": ""
-        },
-        {
-          "id": "1778394339616",
-          "bloodline": "H",
-          "count": 3,
-          "fatherId": "1769672551351",
-          "fatherName": "hs",
-          "motherId": "1769671263268",
-          "motherName": "G0",
-          "parentRelation": "hs×G0",
-          "remark": ""
         }
       ],
       "subspeciesList": [],
