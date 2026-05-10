@@ -603,7 +603,7 @@
         {
           "id": "1778394339616",
           "bloodline": "H",
-          "count": 1,
+          "count": 3,
           "fatherId": "1769672551351",
           "fatherName": "hs",
           "motherId": "1769671263268",
@@ -613,9 +613,9 @@
         }
       ],
       "subspeciesList": [],
-      "selectedMaleId": "1769672551351",
-      "selectedFemaleId": "1769671263268",
-      "newBloodlineName": "H",
+      "selectedMaleId": "",
+      "selectedFemaleId": "",
+      "newBloodlineName": "",
       "addCount": 1
     },
     {
